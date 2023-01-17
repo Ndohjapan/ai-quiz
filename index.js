@@ -1,11 +1,11 @@
 const app = require("./app")
-const {prototype} = require("./utils/db")
+const pool = require("./utils/db")
 const dotenv = require("dotenv")
 dotenv.config()
 
 const PORT = process.env.port || 3030
 
-prototype.connect({
+pool.connect({
     host: process.env.HOST,
     port: process.env.POSTGRESS_PORT,
     database: process.env.DATABASE,

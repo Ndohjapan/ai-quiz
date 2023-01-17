@@ -30,4 +30,4 @@ async function connectDB(){
     return database
 }
 
-module.exports = Pool
+module.exports = new Pool()

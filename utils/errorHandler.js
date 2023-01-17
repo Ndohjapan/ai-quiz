@@ -11,7 +11,7 @@ const sendErrorDev = (err, res) => {
     if (err.isOperational) {
       return res
         .status(err.statusCode)
-        .json({ status: err.status, error: err.message });
+        .json({ success: err.success, message: err.message });
     }
     res.status(err.statusCode).json({ message: "Something went wrong" });
   };

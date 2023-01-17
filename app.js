@@ -12,9 +12,6 @@ app.use(express.json());
 // Log all the api calls coming to the server
 app.use(httpLogger);
 
-// Limit the input size
-app.use(limitInputSize)
-
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", bruteForce.prevent, authRoutes)
