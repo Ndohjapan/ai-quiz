@@ -6,6 +6,15 @@ const {sendMail} = require("../utils/sendMail")
 const generateOtp = require("../utils/generateOtp")
 const pool = require("../utils/db")
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken")
+
+
+async function signJWT (email, verified){
+    return jwt.sign(
+        { email: email, verified: verified, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) },
+        process.env.JWT_PRIVATE_KEY
+    );
+}
 
 
 exports.signup = catchAsync(async(req, res, next) => {
@@ -14,8 +23,11 @@ exports.signup = catchAsync(async(req, res, next) => {
     const otp = generateOtp();
     const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT); 
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const {rows} = await pool.query(`
+        SELECT hash_password($1);
+    `, [password])
+
+    const hashedPassword = rows[0].hash_password
 
     try{
         
@@ -25,8 +37,6 @@ exports.signup = catchAsync(async(req, res, next) => {
         `, [firstname, lastname, username, email, hashedPassword, otp, otpExpiresIn]
         )
         // await sendMail(email, otp);
-
-        console.log(process.env.NODE_ENV)
         
         if(process.env.NODE_ENV === "development"){
             return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
@@ -70,8 +80,67 @@ exports.verifyOTP = catchAsync(async(req, res, next) => {
     }
 })
 
-exports.resendOTP 
+exports.resendOTP = catchAsync(async(req, res, next) => {
+    let {email} = req.body
 
-exports.login
+    const otp = generateOtp();
+    const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT); 
 
-exports.resetPassword
+   let {rows} = await pool.query(`
+        update users set otp = $1, otp_expires_in=$2 where email = $3 returning *
+    `, [otp, otpExpiresIn, email])
+    // await sendMail(email, otp);
+
+    if(process.env.NODE_ENV === "development"){
+        return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
+    }
+
+    return res.status(200).json({ success: true, data: "OTP re-sent" });
+})
+
+exports.login = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+  
+    if (!email || !password)
+        return next(new AppError("Provide an email and password", 400));
+  
+    let user = await pool.query(`
+        select * from users where email = $1
+    `, [email])
+
+
+    if (!user.rows.length){
+      return next(new AppError("User not found", 404));
+    }
+    else{
+
+        const {rows} = await pool.query(`
+            SELECT check_password($1, $2)
+        `, [password, email])
+
+        const correctPassword = rows[0].check_password
+        if (!correctPassword){
+    
+            return next(new AppError("Incorrect email or password", 400));
+        }else{
+            const token = await signJWT(email, rows[0].verified);
+            res.status(200).json({ success: true, token, data: toCamelCase(user.rows)[0] });
+        }
+  
+    } 
+  
+  })
+
+exports.resetPassword = catchAsync(async(req, res, next) => {
+    let {email, newPassword} = req.body
+  
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+  
+    let {rows} = await pool.query(`
+            update users set VERIFIED = true, password=$1 where email = $2 returning *
+        `, [hashedPassword, email])
+  
+    res.status(200).send({status: true, message: "Password Set Successfully"})
+
+})

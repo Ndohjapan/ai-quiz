@@ -1,5 +1,6 @@
 const postmark = require("postmark")
 const dotenv = require("dotenv")
+const catchAsync = require("./catchAsync")
 dotenv.config()
 let postmarkKey = process.env.POSTMARK_KEY
 let senderEmail = process.env.SENDER_EMAIL
@@ -18,7 +19,7 @@ function otpHtmlTemplate(otp) {
   `;
 }
 
-async function sendMail(receipientEmail, otp) {
+const sendMail = catchAsync(async (receipientEmail, otp) => {
   client.sendEmail({
     "From": senderEmail, 
     "To": receipientEmail, 
@@ -34,6 +35,6 @@ async function sendMail(receipientEmail, otp) {
     console.info("Sent to postmark for delivery")
     return result
   });
-}
+})
 
 module.exports.sendMail = sendMail;
