@@ -2,8 +2,9 @@ const express = require("express")
 const httpLogger = require("./middleware/httpLogger")
 const globalErrorHandler = require("./utils/errorHandler")
 const authRoutes = require("./routes/auth")
+const quizRoutes = require("./routes/quiz")
 const AppError = require("./utils/appError")
-const {bruteForce, limitInputSize} = require("./middleware/protect")
+const {bruteForce, protect} = require("./middleware/protect")
 
 const app = express()
 
@@ -15,8 +16,8 @@ app.use(httpLogger);
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", bruteForce.prevent, authRoutes)
+app.use("/quiz", protect, quizRoutes)
 // app.use("/user")
-// app.use("/quiz")
 // app.use("/quizCategory")
 // app.use("/quizDifficulty")
 // app.use("/participation")

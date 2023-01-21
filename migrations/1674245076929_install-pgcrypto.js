@@ -10,6 +10,6 @@ exports.up = pgm => {
 
 exports.down = pgm => {
     pgm.sql(`
-        DROP EXTENSION extension_name;
+        DROP EXTENSION pgcrypto;
     `)
 };

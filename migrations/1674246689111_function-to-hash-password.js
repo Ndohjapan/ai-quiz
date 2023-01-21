@@ -12,7 +12,7 @@ exports.up = pgm => {
         CREATE OR REPLACE FUNCTION hash_password(input_password text)
         RETURNS text AS $$
         BEGIN
-        RETURN crypt(input_password, gen_salt('${process.env.SALT_SEED}'));
+        RETURN crypt(input_password, 'salt');
         END;
         $$ LANGUAGE plpgsql;
     `)
@@ -20,6 +20,6 @@ exports.up = pgm => {
 
 exports.down = pgm => {
     pgm.sql(`
-        DROP FUNCTION check_password;
+        DROP FUNCTION hash_password;
     `)
 };

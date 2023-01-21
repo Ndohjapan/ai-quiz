@@ -9,9 +9,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 
 
-async function signJWT (email, verified){
+async function signJWT (id, verified){
     return jwt.sign(
-        { email: email, verified: verified, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) },
+        { id, verified, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) },
         process.env.JWT_PRIVATE_KEY
     );
 }
@@ -123,7 +123,7 @@ exports.login = catchAsync(async (req, res, next) => {
     
             return next(new AppError("Incorrect email or password", 400));
         }else{
-            const token = await signJWT(email, rows[0].verified);
+            const token = await signJWT(user.rows[0].id, rows[0].verified);
             res.status(200).json({ success: true, token, data: toCamelCase(user.rows)[0] });
         }
   
@@ -134,12 +134,15 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.resetPassword = catchAsync(async(req, res, next) => {
     let {email, newPassword} = req.body
   
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-  
     let {rows} = await pool.query(`
-            update users set VERIFIED = true, password=$1 where email = $2 returning *
-        `, [hashedPassword, email])
+        SELECT hash_password($1);
+    `, [newPassword])
+    
+    const hashedPassword = rows[0].hash_password
+
+    await pool.query(`
+        update users set VERIFIED = true, password=$1 where email = $2 returning *
+    `, [hashedPassword, email])
   
     res.status(200).send({status: true, message: "Password Set Successfully"})
 

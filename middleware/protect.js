@@ -1,5 +1,9 @@
-const ExpressBrute = require("express-brute")
+const ExpressBrute = require("express-brute");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync")
+const pool = require("../utils/db")
+const toCamelCase = require("../utils/toCamelCase")
+const jwt = require("jsonwebtoken")
 
 // using memory store, an in-memory db is recommended for production
 let store = new ExpressBrute.MemoryStore();
@@ -22,25 +26,23 @@ exports.bruteForce = new ExpressBrute(store);
 //     });
 //   };
   
-//   exports.protect = catchAsync(async (req, res, next) => {
-//     let token = req.header("x-auth-token");
-//     if(!token){
-//       return res.status(401).send({success: false, message: "Invalid Token"})
-//     }
+exports.protect = catchAsync(async (req, res, next) => {
+    let token = req.header("x-auth-token");
+    if(!token){
+        return next(new AppError("Invalid Token", 403))
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY)
+
+    let {rows} = await pool.query(`
+        select * from users where id = $1
+    `, [decoded.id])
+
+    req.user = toCamelCase(rows)[0]
+
+    if(!req.user){
+        return next(new AppError("Invalid Token", 403))
+    }
     
-//     try{
-//       const decoded = jwt.verify(token, process.env.jwtPrivateKey)
-//       req.user = await userSchema.findById(decoded.id);
-//       if(req.user){
-//         return next()
-//       }
-//       else{
-//         req.user = await adminSchema.findById(decoded.id)
-//         req.user = req.user ? req.user : await restaurantSchema.findById(decoded.id)
-//         return next()
-//       }
-//     }
-//     catch(err){
-//       return res.status(401).send({success: false, message: "Invalid Token"})
-//     }
-//   });
+    next()
+});

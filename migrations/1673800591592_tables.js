@@ -22,6 +22,6 @@ exports.up = pgm => {
 
 exports.down = pgm => {
     pgm.sql(`
-        DROP TABLE USERS
+        DROP TABLE USERS CASCADE
     `)
 };
