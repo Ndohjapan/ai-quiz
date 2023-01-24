@@ -9,12 +9,13 @@ dotenv.config()
 exports.up = pgm => {
 
     pgm.sql(`
-        CREATE OR REPLACE FUNCTION hash_password(input_password text)
-        RETURNS text AS $$
+        CREATE OR REPLACE FUNCTION hash_password(password VARCHAR(255))
+        RETURNS VARCHAR(255) AS $$
         BEGIN
-        RETURN crypt(input_password, ('salt'));
+        RETURN crypt(password, gen_salt('bf'));
         END;
-        $$ LANGUAGE plpgsql;
+        $$ LANGUAGE plpgsql;    
+    
     `)
 };
 

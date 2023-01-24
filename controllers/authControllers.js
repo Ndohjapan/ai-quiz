@@ -33,8 +33,8 @@ exports.signup = catchAsync(async(req, res, next) => {
         
         let {rows} = await pool.query(`
             insert into users (firstname, lastname, username, email, password, otp, otp_expires_in)
-            values($1, $2, $3, $4, $5, $6, $7) returning *
-        `, [firstname, lastname, username, email, hashedPassword, otp, otpExpiresIn]
+            values($1, $2, $3, $4, hash_password($5), $6, $7) returning *
+        `, [firstname, lastname, username, email, password, otp, otpExpiresIn]
         )
         // await sendMail(email, otp);
         
