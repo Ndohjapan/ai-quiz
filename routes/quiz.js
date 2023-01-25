@@ -5,8 +5,8 @@ const { createQuiz, getByUserId, updateQuizById, deletById, getAll, postFilter, 
 router.post("/", createQuiz)
 router.post("/postFilter", postFilter)
 router.get("/", getAll)
-router.get("/:id", getById)
 router.get("/getByUserId", getByUserId)
+router.get("/:id", getById)
 router.put("/:id", updateQuizById)
 router.delete("/:id", deletById)
 

@@ -2,6 +2,7 @@ const AppError = require("../utils/appError")
 const catchAsync = require("../utils/catchAsync")
 const toCamelCase = require("../utils/toCamelCase")
 const toSnakeCase = require("../utils/toSnakeCase")
+const jsonToString = require("../utils/jsonToString")
 const pool = require("../utils/db")
 
 
@@ -96,12 +97,12 @@ exports.postFilter = catchAsync(async(req, res, next) => {
     });
 
     updateData = toSnakeCase(updateData)
-
-    console.log(updateData)
-
+    updateData = jsonToString(updateData)
+    
     let {rows} = await pool.query(`
-        SELECT * FROM get_quiz_by_json($1).rows;
+        SELECT * FROM get_rows_by_string($1);
     `, [updateData])
 
     res.send({success: true, data: toCamelCase(rows)})
+
 })

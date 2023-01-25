@@ -31,18 +31,23 @@ exports.protect = catchAsync(async (req, res, next) => {
     if(!token){
         return next(new AppError("Invalid Token", 403))
     }
+    try{
 
-    const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY)
-
-    let {rows} = await pool.query(`
-        select * from users where id = $1
-    `, [decoded.id])
-
-    req.user = toCamelCase(rows)[0]
-
-    if(!req.user){
-        return next(new AppError("Invalid Token", 403))
-    }
+        const decoded = await jwt.verify(token, process.env.JWT_PRIVATE_KEY)
+        let {rows} = await pool.query(`
+            select * from users where id = $1
+        `, [decoded.id])
     
-    next()
+        req.user = toCamelCase(rows)[0]
+    
+        if(!req.user){
+            return next(new AppError("Invalid Token", 403))
+        }
+        
+        next()
+    }
+    catch(err){
+        return next (new AppError("Invalid Token", 403))
+    }
+
 });
