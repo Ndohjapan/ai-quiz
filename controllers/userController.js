@@ -42,8 +42,6 @@ exports.updateUser = catchAsync(async(req, res, next) => {
         select * from users where id=$1
     `, [req.params.id])
 
-    console.log(rows)
-
     res.send({success: true, data: toCamelCase(rows)[0]})
 })
 

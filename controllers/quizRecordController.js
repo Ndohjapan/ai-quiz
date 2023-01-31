@@ -5,53 +5,40 @@ const toSnakeCase = require("../utils/toSnakeCase")
 const jsonToString = require("../utils/jsonToString")
 const pool = require("../utils/db")
 
+exports.createRecord = catchAsync(async(req, res, next) => {
+    let {quiz, score} = req.body
 
-exports.createQuiz = catchAsync(async(req, res, next) => {
-
-    let {category, difficulty, quizType, expectedParticipants} = req.body
-
-    let quizStatus = true
-
-    if(quizType === "single")quizStatus = (quizType === 'single' && expectedParticipants != 1)
-
-    let userId = req.user.id
+    let participant = req.user.id
 
     let {rows} = await pool.query(`
-        insert into quiz (creator, category, difficulty, quiz_type, expected_participants)
-        values($1, $2, $3, $4, $5) returning *
-    `, [userId, category, difficulty, quizType, expectedParticipants]
-    )
+        insert into quiz_result(quiz, score, participant)
+        values($1, $2, $3) returning *
+    `, [quiz, score, participant])
 
     res.send({success: true, data: toCamelCase(rows)[0]})
+
 })
 
-exports.getByUserId = catchAsync(async(req, res, next) => {
+exports.getAllRecords = catchAsync(async(req, res, next) => {
     let {rows} = await pool.query(`
-        select * from quiz where creator = $1
-    `, [req.user.id])
-
-    res.send({success: true, data: toCamelCase(rows)})
-})
-
-exports.getAll = catchAsync(async(req, res, next) => {
-    let {rows} = await pool.query(`
-        select * from quiz
+        select * from quiz_result
     `)
 
     res.send({success: true, data: toCamelCase(rows)})
+
 })
 
-exports.getById = catchAsync(async(req, res, next) => {
+exports.getRecord = catchAsync(async(req, res, next) => {
+    let userId = req.params.id
+
     let {rows} = await pool.query(`
-        select * from quiz where id = $1
-    `, [req.params.id])
+        select * from quiz_result where id = $1
+    `, [userId])
 
     res.send({success: true, data: toCamelCase(rows)[0]})
 })
 
-
-exports.updateQuizById = catchAsync(async(req, res, next) => {
-
+exports.updateRecord = catchAsync(async(req, res, next) => {
     let data = req.body;
     let updateData = {};
 
@@ -64,21 +51,19 @@ exports.updateQuizById = catchAsync(async(req, res, next) => {
     updateData = toSnakeCase(updateData)
 
     await pool.query(`
-        SELECT update_quiz_by_id_v2($1, $2);
+        SELECT update_quiz_result_by_id($1, $2);
     `, [req.params.id, updateData])
 
     let {rows} = await pool.query(`
-        select * from quiz where id=$1
+        select * from quiz_result where id=$1
     `, [req.params.id])
-
-    console.log(rows)
 
     res.send({success: true, data: toCamelCase(rows)[0]})
 })
 
-exports.deletById = catchAsync(async(req, res, next) => {
+exports.deleteRecord = catchAsync(async(req, res, next) => {
     await pool.query(`
-        delete from quiz where id = $1
+        delete from quiz_result where id = $1
     `, [req.params.id])
 
     res.status(204).send({success: true, message: "Deleted Successfully"})
@@ -98,9 +83,8 @@ exports.postFilter = catchAsync(async(req, res, next) => {
     updateData = jsonToString(updateData)
     
     let {rows} = await pool.query(`
-        SELECT * FROM get_rows_by_string($1);
+        SELECT * FROM get_quiz_result_rows_by_string($1);
     `, [updateData])
 
     res.send({success: true, data: toCamelCase(rows)})
-
 })
