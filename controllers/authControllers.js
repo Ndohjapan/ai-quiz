@@ -75,7 +75,7 @@ exports.verifyOTP = catchAsync(async(req, res, next) => {
             update users set VERIFIED = true, otp='' where email = $1 returning *
         `, [email])
         
-        return res.send({success: true, data: toCamelCase(rows)[0]})
+        return res.send({success: true, message: "OTP Verified", data: toCamelCase(rows)[0]})
 
     }
 })
@@ -95,7 +95,7 @@ exports.resendOTP = catchAsync(async(req, res, next) => {
         return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
     }
 
-    return res.status(200).json({ success: true, data: "OTP re-sent" });
+    return res.status(200).json({ success: true, message: "OTP re-sent" });
 })
 
 exports.login = catchAsync(async (req, res, next) => {
