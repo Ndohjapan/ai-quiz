@@ -110,7 +110,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
 
     if (!user.rows.length){
-      return next(new AppError("User not found", 404));
+      return next(new AppError("Invalid Login Detail", 404));
     }
     else{
 
@@ -121,7 +121,7 @@ exports.login = catchAsync(async (req, res, next) => {
         const correctPassword = rows[0].check_password
         if (!correctPassword){
     
-            return next(new AppError("Incorrect email or password", 400));
+            return next(new AppError("Invalid Login Detail", 400));
         }else{
             const token = await signJWT(user.rows[0].id, rows[0].verified);
             res.status(200).json({ success: true, token, data: toCamelCase(user.rows)[0] });
