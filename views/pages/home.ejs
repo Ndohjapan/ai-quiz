@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../partials/main-header'); -%>
+
+<body class="profile-body">
+    <div>
+        <div class="user-details">
+            <div class="user-profile-image-section">
+                <img class="user-profile-image" src="/images/user.png" alt="">
+            </div>
+            <div class="user-name-section">
+                <span><h3></h3></span>
+                <h5></h5>
+            </div>
+        </div>
+    </div>
+    <!-- start Quiz button -->
+    <div class="create_join_quiz">
+        <div><button class="create-quiz-btn">Create Quiz</button></div>
+        <div><button class="join-quiz-btn">Join Quiz</button></div>
+    </div>
+
+    <div>
+        <h3 class="quiz-history-text">Your Quiz History</h3>
+    </div>
+
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <td>Id</td>
+                    <td>Creator</td>
+                    <td>Category</td>
+                    <td>Difficulty</td>
+                    <td>Score</td>
+                    <td>Rank</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info_box">
+        <div class="info-title"><span>Some Rules of this Quiz</span></div>
+        <div class="info-list">
+            <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
+            <div class="info">2. Once you select your answer, it can't be undone.</div>
+            <div class="info">3. You can't select any option once time goes off.</div>
+            <div class="info">4. You can't exit from the Quiz while you're playing.</div>
+            <div class="info">5. You'll get points on the basis of your correct answers.</div>
+        </div>
+        <div class="buttons">
+            <button class="quit">Exit Quiz</button>
+            <button class="restart">Continue</button>
+        </div>
+    </div>
+
+    <!-- Inside this JavaScript file I've inserted Questions and Options only -->
+    <!-- <script src="js/questions.js"></script> -->
+
+    <!-- Inside this JavaScript file I've coded all Quiz Codes -->
+    <!-- <script src="js/script.js"></script> -->
+
+</body>
+
+</html>

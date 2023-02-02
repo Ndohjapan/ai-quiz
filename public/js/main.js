@@ -223,7 +223,10 @@ loginButton.addEventListener('click', () => {
         })
         .then(result =>{
             
-            alert("Login Successful")
+            localStorage.setItem("x-auth-token", result.token)
+            localStorage.setItem("user-data", result.data)
+
+            window.location.href = "/home"
         })
         .catch(error => {
             alert(error)

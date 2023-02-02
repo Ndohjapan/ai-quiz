@@ -6,6 +6,7 @@ const userRoutes = require("./routes/users")
 const quizRoutes = require("./routes/quiz")
 const quizRecordRoute = require("./routes/quizRecord")
 const inedexRoute = require("./routes/index")
+const homeRoute = require("./routes/home")
 const AppError = require("./utils/appError")
 const {bruteForce, protect} = require("./middleware/protect")
 const path = require("path")
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use("/", inedexRoute)
+app.use("/home", homeRoute)
 app.use("/auth", bruteForce.prevent, authRoutes)
 app.use("/quiz", protect, quizRoutes)
 app.use("/user", protect, userRoutes)
