@@ -4,6 +4,7 @@ const toCamelCase = require("../utils/toCamelCase")
 const toSnakeCase = require("../utils/toSnakeCase")
 const jsonToString = require("../utils/jsonToString")
 const pool = require("../utils/db")
+const { Query } = require("pg")
 
 exports.getUser = catchAsync(async(req, res, next) => {
     let {rows} = await pool.query(`
@@ -65,10 +66,10 @@ exports.postFilter = catchAsync(async(req, res, next) => {
 
     updateData = toSnakeCase(updateData)
     updateData = jsonToString(updateData)
-    
-    let {rows} = await pool.query(`
-        SELECT * FROM get_users_rows_by_string($1);
-    `, [updateData])
+
+    let querySelector = 'select * from users where '+ updateData
+
+    let {rows} = await pool.query(querySelector)
 
     res.send({success: true, data: toCamelCase(rows)})
 })

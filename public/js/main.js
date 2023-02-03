@@ -224,7 +224,7 @@ loginButton.addEventListener('click', () => {
         .then(result =>{
             
             localStorage.setItem("x-auth-token", result.token)
-            localStorage.setItem("user-data", result.data)
+            localStorage.setItem("user-data", JSON.stringify(result.data))
 
             window.location.href = "/home"
         })

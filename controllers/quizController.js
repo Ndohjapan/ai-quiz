@@ -97,9 +97,9 @@ exports.postFilter = catchAsync(async(req, res, next) => {
     updateData = toSnakeCase(updateData)
     updateData = jsonToString(updateData)
     
-    let {rows} = await pool.query(`
-        SELECT * FROM get_rows_by_string($1);
-    `, [updateData])
+    let querySelector = 'select * from quiz where '+updateData
+
+    let {rows} = await pool.query(querySelector)
 
     res.send({success: true, data: toCamelCase(rows)})
 

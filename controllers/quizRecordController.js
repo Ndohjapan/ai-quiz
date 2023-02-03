@@ -8,12 +8,14 @@ const pool = require("../utils/db")
 exports.createRecord = catchAsync(async(req, res, next) => {
     let {quiz, score} = req.body
 
-    let participant = req.user.id
+    let userId = req.user.id
+
+    console.log(userId)
 
     let {rows} = await pool.query(`
-        insert into quiz_result(quiz, score, participant)
+        insert into quiz_result(quiz_id, score, user_id)
         values($1, $2, $3) returning *
-    `, [quiz, score, participant])
+    `, [quiz, score, userId])
 
     res.send({success: true, data: toCamelCase(rows)[0]})
 
@@ -81,10 +83,20 @@ exports.postFilter = catchAsync(async(req, res, next) => {
 
     updateData = toSnakeCase(updateData)
     updateData = jsonToString(updateData)
-    
-    let {rows} = await pool.query(`
-        SELECT * FROM get_quiz_result_rows_by_string($1);
-    `, [updateData])
+    console.log(updateData)
+
+    let querySelector = `SELECT *, 
+    get_quiz_result_rank(quiz_result.id) as rank, 
+    quiz_category.name as quiz_category, 
+    quiz_difficulty.name as quiz_difficulty 
+    FROM QUIZ_RESULT 
+    JOIN QUIZ ON QUIZ.ID = QUIZ_RESULT.QUIZ_ID 
+    JOIN USERS ON USERS.ID = QUIZ.CREATOR 
+    JOIN QUIZ_CATEGORY ON QUIZ_CATEGORY.ID = QUIZ.CATEGORY
+    JOIN QUIZ_DIFFICULTY ON  QUIZ_DIFFICULTY.ID = QUIZ.DIFFICULTY
+	WHERE ` + updateData
+
+    let {rows} = await pool.query(querySelector)
 
     res.send({success: true, data: toCamelCase(rows)})
 })
