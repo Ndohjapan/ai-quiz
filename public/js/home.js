@@ -6,6 +6,8 @@ let tbody = document.querySelector('.quiz-history-section tbody');
 
 window.addEventListener('load', () => {
     getUsersQuiz()
+    getAllCategories()
+    getAllDifficulties()
 }) 
 
 function getUsersQuiz(){
@@ -13,7 +15,6 @@ function getUsersQuiz(){
     var myHeaders = new Headers();
 
     let authToken = localStorage.getItem("x-auth-token")
-    // let authToken = "abc"
 
     myHeaders.append("x-auth-token", authToken);
     myHeaders.append("Content-Type", "application/json");
@@ -95,4 +96,66 @@ function getUsersQuiz(){
     }
 
     
+}
+
+
+function getAllCategories(){
+    var myHeaders = new Headers();
+
+    let authToken = localStorage.getItem("x-auth-token")
+
+    myHeaders.append("x-auth-token", authToken);
+
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+
+    fetch("/category", requestOptions)
+    .then(async response => {
+        if (!response.ok) {
+            response = await response.json()
+            throw new Error(response.message);
+        }
+        return response.json();
+    })
+    .then(result =>{        
+        localStorage.setItem("categories", JSON.stringify(result.data))
+    })
+    .catch(error => {
+        alert(error)
+    });
+
+}
+
+
+function getAllDifficulties(){
+    var myHeaders = new Headers();
+
+    let authToken = localStorage.getItem("x-auth-token")
+
+    myHeaders.append("x-auth-token", authToken);
+
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+
+    fetch("/difficulty", requestOptions)
+    .then(async response => {
+        if (!response.ok) {
+            response = await response.json()
+            throw new Error(response.message);
+        }
+        return response.json();
+    })
+    .then(result =>{        
+        localStorage.setItem("difficulties", JSON.stringify(result.data))
+    })
+    .catch(error => {
+        alert(error)
+    });
+
 }
