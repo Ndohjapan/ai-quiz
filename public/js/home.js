@@ -19,6 +19,7 @@ let quizTypeModal = document.querySelector("#quiz-type")
 let tbody = document.querySelector('.quiz-history-section tbody');
 
 const quizCategoryDropDown = document.getElementById("quiz-category-dropdown");
+const expectedParticipantsInput = document.getElementById("expected-participants");
 
 
 let category
@@ -261,7 +262,14 @@ function setQuizDifficulty(){
 }
 
 function setExpectedParticipants(){
+    expectedParticipants = expectedParticipantsInput.value
 
+    if(expectedParticipants === ""){
+        console.log("This is empty")
+        expectedParticipants = 1
+    }
+
+    localStorage.setItem("expectedParticipants", expectedParticipants)
 }
 
 function setCategories(){
