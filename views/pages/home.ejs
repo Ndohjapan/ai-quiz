@@ -4,59 +4,135 @@
 <%- include('../partials/main-header'); -%>
 
 <body class="profile-body">
-    <div>
-        <div class="user-details">
-            <div class="user-profile-image-section">
-                <img class="user-profile-image" src="/images/user.png" alt="">
-            </div>
-            <div class="user-name-section">
-                <span><h3></h3></span>
-                <h5></h5>
+    <div class="profile-div">
+        <div>
+            <div class="user-details">
+                <div class="user-profile-image-section">
+                    <img class="user-profile-image" src="/images/user.png" alt="">
+                </div>
+                <div class="user-name-section">
+                    <span><h3></h3></span>
+                    <h5></h5>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- start Quiz button -->
-    <div class="create_join_quiz">
-        <div><button class="create-quiz-btn">Create Quiz</button></div>
-        <div><button class="join-quiz-btn">Join Quiz</button></div>
-    </div>
-
-    <div>
-        <h3 class="quiz-history-text">Your Quiz History</h3>
-    </div>
-
-    <div class="quiz-history-section">
-        <table>
-            <thead>
-                <tr>
-                    <td>Id</td>
-                    <td>Creator</td>
-                    <td>Category</td>
-                    <td>Difficulty</td>
-                    <td>Score</td>
-                    <td>Rank</td>
-                </tr>
-            </thead>
-
-            <tbody>
-                
-            </tbody>
-        </table>
+        <!-- start Quiz button -->
+        <div class="create_join_quiz">
+            <div><button class="create-quiz-btn" onclick="toggleProfileDiv()">Create Quiz</button></div>
+            <div><button class="join-quiz-btn">Join Quiz</button></div>
+        </div>
+    
+        <div>
+            <h3 class="quiz-history-text">Your Quiz History</h3>
+        </div>
+    
+        <div class="quiz-history-section">
+            <table>
+                <thead class="home-table">
+                    <tr>
+                        <td>Id</td>
+                        <td>Creator</td>
+                        <td>Category</td>
+                        <td>Difficulty</td>
+                        <td>Score</td>
+                        <td>Rank</td>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Info Box -->
-    <div class="info_box">
-        <div class="info-title"><span>Some Rules of this Quiz</span></div>
+    <div class="info_box" id="quiz-type">
+        <div class="info-title"><span>Select Quiz Type</span></div>
         <div class="info-list">
-            <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
-            <div class="info">2. Once you select your answer, it can't be undone.</div>
-            <div class="info">3. You can't select any option once time goes off.</div>
-            <div class="info">4. You can't exit from the Quiz while you're playing.</div>
-            <div class="info">5. You'll get points on the basis of your correct answers.</div>
+            <div class="info">
+                <input type="radio" id="single-user" name="quiz-type" value="single" data-next="quiz-difficulty">
+                <label for="single-user">Single User</label><br>
+                <input type="radio" id="multi-user" name="quiz-type" value="multi" data-next="num-of-participants" >
+                <label for="multi-user">Multiple Users</label><br>
+            </div>
         </div>
         <div class="buttons">
-            <button class="quit">Exit Quiz</button>
-            <button class="restart">Continue</button>
+            <button class="quit" onclick="closeModal(this); toggleProfileDiv()">Close</button>
+            <button class="restart" onclick="nextModal(this); closeModal(this); setQuizType()" data-next="quiz-difficulty" id="next-after-quiz-type" disabled >Next</button>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info_box" id="quiz-difficulty">
+        <div class="info-title"><span>Select Quiz Difficulty</span></div>
+        <div class="info-list">
+            <div class="info">
+                <input type="radio" id="easy" name="quiz-difficulty" value=1>
+                <label for="easy">Easy</label><br>
+                <input type="radio" id="medium" name="quiz-difficulty" value=2>
+                <label for="medium">Medium</label><br>
+                <input type="radio" id="hard" name="quiz-difficulty" value=3>
+                <label for="hard">Hard</label><br>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="quit" onclick="closeModal(this); previousModal(this)" data-next="quiz-category" data-previous="quiz-type">Previous</button>
+            <button class="restart" data-next="quiz-category" id="next-after-quiz-difficulty" onclick="nextModal(this); closeModal(this); setQuizDifficulty()" disabled>Next</button>
+        </div>
+    </div>
+
+    <!-- Select Quiz Categiry -->
+    <div class="info_box" id="quiz-category">
+        <div class="info-title"><span>Select Quiz Category</span></div>
+        <div class="info-list">
+            <div class="info">
+                <select name="" id="quiz-category-dropdown" style="width: 100%">
+                </select>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="quit" onclick="closeModal(this); previousModal(this)" data-previous="quiz-difficulty">Previous</button>
+            <button class="restart" onclick="setCategories()" id="create-quiz-send-request">Create Quiz</button>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info_box" id="num-of-participants">
+        <div class="info-title"><span>Number of Participants</span></div>
+        <div class="info-list">
+            <div class="info">
+                <input type="number" name="number" id="expected-participants" style="width: 100%" placeholder="Number of Participants">
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="quit" onclick="closeModal(this); toggleProfileDiv()">Previous</button>
+            <button class="restart" data-next="quiz-category">Next</button>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info_box" id="join-quiz">
+        <div class="info-title"><span>Join Quiz</span></div>
+        <div class="info-list">
+            <div class="info">
+                <input type="text" name="number" id="quiz-id" style="width: 100%" placeholder="Input Quiz Id">
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="quit" onclick="closeModal(this); toggleProfileDiv()">Close</button>
+            <button class="restart">Join</button>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info_box" id="cannot-join-quiz">
+        <div class="info-title"><span>Cannot Join Quiz!</span></div>
+        <div class="info-list">
+            <div class="info">Quiz Capacity is Full.</div>
+        </div>
+        <div class="buttons">
+            <button class="restart">Close</button>
         </div>
     </div>
 

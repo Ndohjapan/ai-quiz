@@ -422,6 +422,10 @@ table{
     /* border-spacing:0; */
 }
 
+table.expected-participants{
+    color: #111
+}
+
 th{
     padding: 1em;
 }
@@ -429,6 +433,23 @@ th{
 td{
     text-align: center;
     border: 0.1em solid #fff;
+}
+
+table.expected-participants td{
+    border-color: #111;
+}
+
+table.expected-participants thead{
+    background-color: #faffad;
+}
+
+thead.home-table{
+    background: #f7dd57;
+}
+
+thead.home-table tr{
+    font-weight: bolder;
+    color: #111;
 }
 
 .profile-body{
@@ -459,8 +480,12 @@ td{
     padding: 1em;
 }
 
+.invisible{
+    display: none;
+}
+
 @media only screen and (max-width: 767px) {
     .user-details {
         grid-template-columns: 30% 60%;
     }
-  }
+}
