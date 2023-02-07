@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../partials/main-header'); -%>
+<%- include('../partials/main-header'); -%>
+
+<body>
+    <!-- Quiz Box -->
+    <div class="quiz_box">
+        <header>
+            <div class="title">Awesome Quiz Application</div>
+            <div class="timer">
+                <div class="time_left_txt">Time Left</div>
+                <div class="timer_sec">10</div>
+            </div>
+            <div class="time_line"></div>
+        </header>
+        <section>
+            <div class="que_text">
+                <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas impedit soluta deserunt cumque qui repellendus sapiente provident odio maiores accusamus.</span>
+                <!-- Here I've inserted question from JavaScript -->
+            </div>
+            <div class="option_list">
+                <div class="option" onclick="optionSelected(this)" data-option="a"><span>10/3</span></div>
+                <div class="option" onclick="optionSelected(this)" data-option="b"><span>5/2</span></div>
+                <div class="option" onclick="optionSelected(this)" data-option="c"><span>23/4</span></div>
+                <div class="option" onclick="optionSelected(this)" data-option="d"><span>40/5</span></div>
+            </div>
+        </section>
+
+        <!-- footer of Quiz Box -->
+        <footer>
+            <div class="total_que">
+                <!-- Here I've inserted Question Count Number from JavaScript -->
+                <span><p>1</p> of <p>10</p> Questions</span>
+            </div>
+            <button class="next_btn">Next Que</button>
+        </footer>
+    </div>
+
+    <div class="info_box activeInfo">
+        <div class="info-title"><span>Quiz Details</span></div>
+        <div class="info-list">
+            <div class="info">
+                <label for="easy">Quiz ID - <strong>Ndohjapan</strong></label><br>
+                <label for="easy">Difficulty - <strong>Hard</strong></label><br>
+                <label for="easy">Category - <strong>Football</strong></label><br>
+                <label for="easy">Timer - <strong><span>10</span>s</strong></label><br>
+                <label for="easy">Participants - <strong><span>2</span>/ <span>10</span> </strong></label> <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <br>
+            </div>
+            <div class="info">
+                <table class="expected-participants">
+                    <thead>
+                        <tr>
+                            <td> <strong>Id</strong></td>
+                            <td> <strong>Username</strong></td>
+                        </tr>
+                    </thead>
+        
+                    <tbody>
+                        <tr>
+                            <td>2</td>
+                            <td>Ndohjapan</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Ndohjapan</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Ndohjapan</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Ndohjapan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="restart">Start</button>
+        </div>
+    </div>
+
+    <!-- Inside this JavaScript file I've inserted Questions and Options only -->
+    <!-- <script src="js/questions.js"></script> -->
+
+    <!-- Inside this JavaScript file I've coded all Quiz Codes -->
+    <!-- <script src="js/script.js"></script> -->
+
+    
+
+</body>
+
+</html>

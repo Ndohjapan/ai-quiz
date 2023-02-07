@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    <!-- Info Box -->
+    <!-- Select quiz type -->
     <div class="info_box" id="quiz-type">
         <div class="info-title"><span>Select Quiz Type</span></div>
         <div class="info-list">
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <!-- Info Box -->
+    <!-- Select quiz difficulty -->
     <div class="info_box" id="quiz-difficulty">
         <div class="info-title"><span>Select Quiz Difficulty</span></div>
         <div class="info-list">
@@ -89,15 +89,17 @@
             <div class="info">
                 <select name="" id="quiz-category-dropdown" style="width: 100%">
                 </select>
+                <label for=""><strong>Num. Of Secs Per Question</strong> </label>
+                <input type="text" name="" id="num-of-secs" placeholder="10" style="width: 100%">
             </div>
         </div>
         <div class="buttons">
             <button class="quit" onclick="closeModal(this); previousModal(this)" data-previous="quiz-difficulty">Previous</button>
-            <button class="restart" onclick="setCategories()" id="create-quiz-send-request">Create Quiz</button>
+            <button class="restart" onclick="setCategories(); createQuiz()" id="create-quiz-send-request">Create Quiz</button>
         </div>
     </div>
 
-    <!-- Info Box -->
+    <!-- Expected particpants -->
     <div class="info_box" id="num-of-participants">
         <div class="info-title"><span>Number of Participants</span></div>
         <div class="info-list">
@@ -111,7 +113,7 @@
         </div>
     </div>
 
-    <!-- Info Box -->
+    <!-- Join Socket -->
     <div class="info_box" id="join-quiz">
         <div class="info-title"><span>Join Quiz</span></div>
         <div class="info-list">
@@ -125,7 +127,7 @@
         </div>
     </div>
 
-    <!-- Info Box -->
+    <!-- Error in joining quiz -->
     <div class="info_box" id="cannot-join-quiz">
         <div class="info-title"><span>Cannot Join Quiz!</span></div>
         <div class="info-list">

@@ -21,17 +21,22 @@ let tbody = document.querySelector('.quiz-history-section tbody');
 const quizCategoryDropDown = document.getElementById("quiz-category-dropdown");
 const expectedParticipantsInput = document.getElementById("expected-participants");
 
+const numberOfSecondsInput = document.getElementById("num-of-secs");
+
+
 
 let category
 let difficulty
 let expectedParticipants = 1
 let quizType = "single"
+let numOfSecs = 10
 
 
 window.addEventListener('load', () => {
     getUsersQuiz()
     getAllCategories()
     getAllDifficulties()
+    localStorage.setItem("expectedParticipants", '1')
 }) 
 
 function getUsersQuiz(){
@@ -274,7 +279,51 @@ function setExpectedParticipants(){
 
 function setCategories(){
     category = quizCategoryDropDown.options[quizCategoryDropDown.selectedIndex].value;
+    numOfSecs = numberOfSecondsInput.value;
+
+    if(numOfSecs === ""){
+        numOfSecs = 10
+    }
 
     localStorage.setItem("category", category)
+    localStorage.setItem("numOfSecs", numOfSecs)
 
+}
+
+function createQuiz(){
+    var myHeaders = new Headers();
+    let authToken = localStorage.getItem("x-auth-token")
+    myHeaders.append("x-auth-token", authToken);
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({
+        "category": parseInt(localStorage.getItem("category")),
+        "difficulty": parseInt(localStorage.getItem("difficulty")) ,
+        "quizType": localStorage.getItem("quizType"),
+        "expectedParticipants": parseInt(localStorage.getItem("expectedParticipants"))
+    });
+
+    var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    fetch("/quiz/", requestOptions)
+    .then(async response => {
+        if (!response.ok) {
+            response = await response.json()
+            throw new Error(response.message);
+        }
+        return response.json();
+    })
+    .then(result =>{
+        
+        localStorage.setItem("quizId", result.data.id)
+        window.location.href = "/startQuiz"
+    })
+    .catch(error => {
+        alert(error)
+    });
 }
