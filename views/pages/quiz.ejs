@@ -38,15 +38,15 @@
         </footer>
     </div>
 
-    <div class="info_box activeInfo">
+    <div class="info_box" id="waiting-box">
         <div class="info-title"><span>Quiz Details</span></div>
         <div class="info-list">
             <div class="info">
                 <label for="easy">Quiz ID - <strong>Ndohjapan</strong></label><br>
-                <label for="easy">Difficulty - <strong>Hard</strong></label><br>
-                <label for="easy">Category - <strong>Football</strong></label><br>
-                <label for="easy">Timer - <strong><span>10</span>s</strong></label><br>
-                <label for="easy">Participants - <strong><span>2</span>/ <span>10</span> </strong></label> <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <br>
+                <label for="easy">Difficulty - <strong id="difficulty-field">Hard</strong></label><br>
+                <label for="easy">Category - <strong id="category-field">Football</strong></label><br>
+                <label for="easy">Timer - <strong><span id="timer-field">10</span>s</strong></label><br>
+                <label for="easy">Participants - <strong><span>1</span>/ <span id="participants-field">10</span> </strong></label> <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <br>
             </div>
             <div class="info">
                 <table class="expected-participants">
@@ -83,12 +83,22 @@
         </div>
     </div>
 
+    <div class="info_box activeInfo"  id="generating-question">
+        <div class="info-title"><span>Generating Questions</span></div>
+        <div class="info-list">
+            <div class="info">
+                <h2><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></h2>
+            </div>
+        </div>
+    </div>
+
     <!-- Inside this JavaScript file I've inserted Questions and Options only -->
     <!-- <script src="js/questions.js"></script> -->
 
     <!-- Inside this JavaScript file I've coded all Quiz Codes -->
     <!-- <script src="js/script.js"></script> -->
-
+    
+    <script src="js/quiz.js"></script>
     
 
 </body>

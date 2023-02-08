@@ -41,32 +41,42 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
             frequency_penalty: 0,
             presence_penalty: 0,
         });
-        
+        // console.log(response)
         let questions = response.data.choices[0].text
 
         
         let {rows} = await pool.query(`
         insert into questions(category, difficulty, questions)
-        values($1, $2, $3) returning *
+        values($1, $2, $3) returning id, questions
         `, [categoryId, difficultyId, questions])
+                
         
         rows[0].questions = JSON.parse(rows[0].questions)
-        
-        res.send({success: true, data: rows})
+
+
+        res.send({success: true, data: rows[0]})
         
         
     } catch (error) {
-        console.log(error)
+
+        console.error(error)
 
         let {rows} = await pool.query(`
-            select * from questions where category = $1 and difficulty = $2
+            select id, questions from questions where category = $1 and difficulty = $2
         `, [categoryId, difficultyId])
 
         let randomNumber = generateRandomNumber(rows.length)
 
-        rows[randomNumber].questions = JSON.parse(rows[randomNumber].questions)
+        try {
+            rows[randomNumber].questions = JSON.parse(rows[randomNumber].questions)
 
-        res.send({success: true, data: rows[randomNumber]})
+            res.send({success: true, data: rows[randomNumber]})
+            
+        } catch (error) {
+            res.send({success: true, data: rows})
+        }
+
+
     }
 
 

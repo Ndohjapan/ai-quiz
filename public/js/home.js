@@ -30,6 +30,8 @@ let difficulty
 let expectedParticipants = 1
 let quizType = "single"
 let numOfSecs = 10
+let difficultyText
+let categoryText
 
 
 window.addEventListener('load', () => {
@@ -244,6 +246,12 @@ nextAfterQuizDifficultyBtn.addEventListener('click', function() {
     }
 });
 
+quizCategoryDropDown.addEventListener('change', (event) => {
+    const selectedIndex = event.target.selectedIndex;
+    const selectedOption = event.target.options[selectedIndex];
+    const selectedText = selectedOption.text;
+    localStorage.setItem("categoryText", selectedText)
+  });
 
 function setQuizType(){
     for (let i = 0; i < quizTypeRadioButton.length; i++) {
@@ -262,9 +270,20 @@ function setQuizDifficulty(){
             break;
         }
     }
-
+    
     localStorage.setItem("difficulty", difficulty)
+    
 }
+
+quizDifficultyRadioButton.forEach((input) => {
+    input.addEventListener('change', (event) => {
+      const selectedLabel = event.target.nextElementSibling.textContent;
+
+      localStorage.setItem("difficultyText", selectedLabel)
+
+    });
+});
+
 
 function setExpectedParticipants(){
     expectedParticipants = expectedParticipantsInput.value
