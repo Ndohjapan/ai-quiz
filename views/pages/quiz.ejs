@@ -21,10 +21,7 @@
                 <!-- Here I've inserted question from JavaScript -->
             </div>
             <div class="option_list">
-                <div class="option" onclick="optionSelected(this)" data-option="a"><span>10/3</span></div>
-                <div class="option" onclick="optionSelected(this)" data-option="b"><span>5/2</span></div>
-                <div class="option" onclick="optionSelected(this)" data-option="c"><span>23/4</span></div>
-                <div class="option" onclick="optionSelected(this)" data-option="d"><span>40/5</span></div>
+                
             </div>
         </section>
 
@@ -32,7 +29,7 @@
         <footer>
             <div class="total_que">
                 <!-- Here I've inserted Question Count Number from JavaScript -->
-                <span><p>1</p> of <p>10</p> Questions</span>
+                <span><p id="current-question">1</p> of <p  id="total-questions">10</p> Questions</span>
             </div>
             <button class="next_btn">Next Que</button>
         </footer>
@@ -46,7 +43,7 @@
                 <label for="easy">Difficulty - <strong id="difficulty-field">Hard</strong></label><br>
                 <label for="easy">Category - <strong id="category-field">Football</strong></label><br>
                 <label for="easy">Timer - <strong><span id="timer-field">10</span>s</strong></label><br>
-                <label for="easy">Participants - <strong><span>1</span>/ <span id="participants-field">10</span> </strong></label> <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <br>
+                <label for="easy">Participants - <strong><span>1</span>/ <span id="participants-field">10</span> </strong></label> <i class="fa fa-spinner fa-spin" id="loading-spinner" aria-hidden="true"></i> <br>
             </div>
             <div class="info">
                 <table class="expected-participants">
@@ -58,28 +55,13 @@
                     </thead>
         
                     <tbody>
-                        <tr>
-                            <td>2</td>
-                            <td>Ndohjapan</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Ndohjapan</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Ndohjapan</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Ndohjapan</td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="buttons">
-            <button class="restart">Start</button>
+            <button class="restart" onclick="closeModal(this); startQuiz();">Start</button>
         </div>
     </div>
 
@@ -89,6 +71,20 @@
             <div class="info">
                 <h2><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></h2>
             </div>
+        </div>
+    </div>
+
+    <!-- Result Box -->
+    <div class="result_box">
+        <div class="icon">
+            <i class="fas fa-crown"></i>
+        </div>
+        <div class="complete_text">You've completed the Quiz!</div>
+        <div class="score_text">
+            <!-- Here I've inserted Score Result from JavaScript -->
+        </div>
+        <div class="buttons">
+            <button class="quit" id="quit-quiz">Quit Quiz</button>
         </div>
     </div>
 

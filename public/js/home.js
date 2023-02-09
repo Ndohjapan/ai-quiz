@@ -85,12 +85,13 @@ function getUsersQuiz(){
             h3Tag.textContent = firstname + " " + lastname;
             h5Tag.textContent = username;
             
+            console.log(resultData)
             
             for(i=0; i<resultData.length; i++){
                 let tr = document.createElement('tr');
     
                 let idTd = document.createElement('td');
-                idTd.textContent = resultData[i].id;
+                idTd.textContent = resultData[i].recordid;
                 tr.appendChild(idTd);
     
                 let usernameTd = document.createElement('td');

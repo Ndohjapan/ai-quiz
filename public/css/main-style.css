@@ -481,7 +481,7 @@ thead.home-table tr{
 }
 
 .invisible{
-    display: none;
+    display: none !important;
 }
 
 @media only screen and (max-width: 767px) {

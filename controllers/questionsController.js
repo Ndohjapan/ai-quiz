@@ -59,21 +59,25 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
         
     } catch (error) {
 
-        console.error(error)
+        console.error(error.response)
 
         let {rows} = await pool.query(`
             select id, questions from questions where category = $1 and difficulty = $2
         `, [categoryId, difficultyId])
 
         let randomNumber = generateRandomNumber(rows.length)
-
+        console.log("Rows Length: ", rows.length)
+        console.log("Random Number: ", randomNumber)
         try {
             rows[randomNumber].questions = JSON.parse(rows[randomNumber].questions)
-
+            
             res.send({success: true, data: rows[randomNumber]})
             
         } catch (error) {
-            res.send({success: true, data: rows})
+            console.log(error)
+            console.log(rows[0].questions)
+            rows[0].questions = JSON.parse(rows[0].questions)
+            res.send({success: true, data: rows[0]})
         }
 
 

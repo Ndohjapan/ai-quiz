@@ -598,6 +598,6 @@ label.valid {
 }
 
 .invisible{
-  display: none
+  display: none !important
 }
 /*# sourceMappingURL=style.css.map */
