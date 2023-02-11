@@ -19,7 +19,7 @@
         <!-- start Quiz button -->
         <div class="create_join_quiz">
             <div><button class="create-quiz-btn" onclick="toggleProfileDiv()">Create Quiz</button></div>
-            <div><button class="join-quiz-btn">Join Quiz</button></div>
+            <div><button class="join-quiz-btn" onclick="toggleProfileDiv()">Join Quiz</button></div>
         </div>
     
         <div>
@@ -123,7 +123,7 @@
         </div>
         <div class="buttons">
             <button class="quit" onclick="closeModal(this); toggleProfileDiv()">Close</button>
-            <button class="restart">Join</button>
+            <button class="restart" id="join-quiz-with-id">Join</button>
         </div>
     </div>
 
@@ -131,18 +131,38 @@
     <div class="info_box" id="cannot-join-quiz">
         <div class="info-title"><span>Cannot Join Quiz!</span></div>
         <div class="info-list">
-            <div class="info">Quiz Capacity is Full.</div>
+            <div class="info" id="connot-join-quiz-message">Quiz Capacity is Full.</div>
         </div>
         <div class="buttons">
-            <button class="restart">Close</button>
+            <button class="restart" onclick="closeModal(this); toggleProfileDiv()" >Close</button>
         </div>
     </div>
 
+    <!-- Loading modal when joining quiz -->
+    <div class="info_box"  id="joining-quiz">
+        <div class="info-title"><span>Joining Quiz</span></div>
+        <div class="info-list">
+            <div class="info">
+                <h2><i class="fa fa-spinner fa-spin" aria-hidden="true"></i></h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="info_box">
+        <% var messageFromNode = message %>
+        <p id="message-container"><%= messageFromNode %></p>
+
+    </div>
     <!-- Inside this JavaScript file I've inserted Questions and Options only -->
     <!-- <script src="js/questions.js"></script> -->
 
     <!-- Inside this JavaScript file I've coded all Quiz Codes -->
     <!-- <script src="js/script.js"></script> -->
+    <script>
+        let url = document.getElementById("message-container").textContent
+        localStorage.setItem("url", url)
+    </script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
     <script src="js/home.js"></script>
 
 </body>

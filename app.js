@@ -35,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use("/", inedexRoute)
 app.use("/home", homeRoute)
 app.get('/startQuiz', (req, res) => res.render('pages/quiz.ejs'));
+app.use("/joinquiz", (req, res) => res.render('pages/joinquiz.ejs'))
 app.use("/auth", bruteForce.prevent, authRoutes)
 app.use("/quiz", protect, quizRoutes)
 app.use("/user", protect, userRoutes)

@@ -8,7 +8,7 @@ const { Configuration, OpenAIApi } = require("openai");
 
 exports.getQuestions = catchAsync(async(req, res, next) => {
 
-    let {difficultyId, categoryId} = req.body
+    let {difficultyId, categoryId, quizId, timer} = req.body
 
     let category = await pool.query(`
         select * from quiz_category where id = $1
@@ -49,8 +49,12 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
         insert into questions(category, difficulty, questions)
         values($1, $2, $3) returning id, questions
         `, [categoryId, difficultyId, questions])
-                
         
+        await pool.query(`
+            update quiz set questions_id = $1, timer = $2 where id = $3
+        `, [rows[0].id, timer, quizId])
+        
+        rows[0].questions = rows[0].questions.replace(/^[^\[\]]+|[^\[\]]+$/g, "");
         rows[0].questions = JSON.parse(rows[0].questions)
 
 
@@ -59,23 +63,18 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
         
     } catch (error) {
 
-        console.error(error.response)
 
         let {rows} = await pool.query(`
             select id, questions from questions where category = $1 and difficulty = $2
         `, [categoryId, difficultyId])
 
         let randomNumber = generateRandomNumber(rows.length)
-        console.log("Rows Length: ", rows.length)
-        console.log("Random Number: ", randomNumber)
         try {
             rows[randomNumber].questions = JSON.parse(rows[randomNumber].questions)
             
             res.send({success: true, data: rows[randomNumber]})
             
         } catch (error) {
-            console.log(error)
-            console.log(rows[0].questions)
             rows[0].questions = JSON.parse(rows[0].questions)
             res.send({success: true, data: rows[0]})
         }
@@ -90,3 +89,13 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
 function generateRandomNumber(n) {
     return Math.floor(Math.random() * n);
   }
+
+exports.getAQuestion = catchAsync(async(req, res, next) => {
+    let {rows} = await pool.query(`
+        select * from questions where id = $1
+    `, [req.params.id])
+
+    rows[0].questions = JSON.parse(rows[0].questions)
+
+    res.send({success: true, data: rows[0]})
+})

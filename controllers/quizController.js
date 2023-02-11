@@ -43,7 +43,10 @@ exports.getAll = catchAsync(async(req, res, next) => {
 
 exports.getById = catchAsync(async(req, res, next) => {
     let {rows} = await pool.query(`
-        select * from quiz where id = $1
+        select *, quiz.id as quizId, quiz_category.name as quizCategory, quiz_difficulty.name as quizDifficulty from quiz
+        join quiz_category on quiz_category.id = quiz.category
+        join quiz_difficulty on quiz_difficulty.id = quiz.difficulty
+        where quiz.id = $1
     `, [req.params.id])
 
     res.send({success: true, data: toCamelCase(rows)[0]})
@@ -103,4 +106,32 @@ exports.postFilter = catchAsync(async(req, res, next) => {
 
     res.send({success: true, data: toCamelCase(rows)})
 
+})
+
+exports.joinQuiz = catchAsync(async(req, res, next) => {
+    let {quizId} = req.body
+
+    let id = quizId.split("-").slice(-1)[0];
+    
+    let {rows} = await pool.query(`
+        SELECT * from quiz
+        where id = $1 and started = false
+    `, [id])
+
+    if(!rows.length){
+        return next(new AppError("Quiz has already started or quiz does not exist", 400))
+    }
+
+    if(rows[0].creator === req.user.id){
+        return next(new AppError("You Cannot Join Your Own Quiz"))
+    }
+
+    if(rows[0].connected < rows[0].expected_participants){
+        await pool.query(`
+            UPDATE quiz set connected = connected+1 where id = $1
+        `, [rows[0].id])
+        return res.send({success: true, message: "quiz updated"})
+    }else{
+        return next(new AppError("Quiz is full", 400))
+    }
 })

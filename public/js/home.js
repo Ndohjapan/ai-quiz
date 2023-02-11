@@ -1,7 +1,10 @@
+const socket = io();
+
 let h3Tag = document.querySelector('div.user-name-section span h3');
 let h5Tag = document.querySelector('div.user-name-section h5');
 let createQuizBtn = document.querySelector("button.create-quiz-btn")
-let joinQuiz = document.querySelector("buttoon.join-quiz-btn")
+let joinQuizBtn = document.querySelector("button.join-quiz-btn")
+let joinQuizWithId = document.getElementById("join-quiz-with-id")
 let profileDiv = document.querySelector("div.profile-div")
 let sendCreateQuizRequestBtn = document.getElementById("create-quiz-send-request")
 
@@ -16,6 +19,11 @@ let isQuizDifficultyRadioSelected = false;
 
 let quizTypeModal = document.querySelector("#quiz-type")
 
+let joinQuizModal = document.querySelector("#join-quiz")
+let joiningQuizModal = document.querySelector("#joining-quiz")
+let cannotJoinQuizModal = document.querySelector("#cannot-join-quiz")
+let cannotJoinQuizText = document.querySelector("#connot-join-quiz-message")
+
 let tbody = document.querySelector('.quiz-history-section tbody');
 
 const quizCategoryDropDown = document.getElementById("quiz-category-dropdown");
@@ -23,6 +31,7 @@ const expectedParticipantsInput = document.getElementById("expected-participants
 
 const numberOfSecondsInput = document.getElementById("num-of-secs");
 
+const quizIdInput = document.getElementById("quiz-id");
 
 
 let category
@@ -32,7 +41,6 @@ let quizType = "single"
 let numOfSecs = 10
 let difficultyText
 let categoryText
-
 
 window.addEventListener('load', () => {
     getUsersQuiz()
@@ -215,6 +223,68 @@ createQuizBtn.addEventListener("click", () => {
     quizTypeModal.classList.toggle("activeInfo")
 })
 
+joinQuizBtn.addEventListener("click", () => {
+    joinQuizModal.classList.toggle("activeInfo")
+})
+
+joinQuizWithId.addEventListener("click", () => {
+    if(!quizIdInput.value){
+        alert("Invalid Quiz ID")
+    }
+    else{
+
+        joinQuizModal.classList.toggle("activeInfo")
+        joiningQuizModal.classList.toggle("activeInfo")
+        
+        var myHeaders = new Headers();
+        let authToken = localStorage.getItem("x-auth-token")
+        
+        myHeaders.append("x-auth-token", authToken);
+        myHeaders.append("Content-Type", "application/json");
+        
+        var raw = JSON.stringify({
+            "quizId": quizIdInput.value
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("/quiz/joinQuiz", requestOptions)
+        .then(async response => {
+            if (!response.ok) {
+                response = await response.json()
+                throw new Error(response.message);
+            }
+            return response.json();
+        })
+        .then(result =>{
+            
+            let quizName = quizIdInput.value
+            let userId = JSON.parse(localStorage["user-data"]).id
+            let username = JSON.parse(localStorage["user-data"]).username
+            socket.emit("joinGroup", {name: quizName, id: userId, username: username})
+
+            let quizId = quizName.split("-").slice(-1)[0];
+
+
+            localStorage.setItem("quizId", quizId)
+            localStorage.setItem("quizName", quizName)
+            
+        })
+        .catch(error => {
+            console.log(error)
+            joiningQuizModal.classList.toggle("activeInfo")
+            cannotJoinQuizText.textContent = error
+            cannotJoinQuizModal.classList.toggle("activeInfo")
+        });
+    }
+
+})
+
 quizTypeRadioButton.forEach(radioButton => {
     radioButton.addEventListener('click', function() {
       isQuizTypeRadioSelected = true;
@@ -347,3 +417,21 @@ function createQuiz(){
         alert(error)
     });
 }
+
+socket.on("connect", function () {
+    console.log("Connected to server!");
+});
+  
+socket.on("message", function (data) {
+    console.log("Received message:", data);
+});
+  
+socket.on("disconnect", function () {
+    console.log("Disconnected from server.");
+});
+  
+socket.on("groupMessage", function (data) {
+    console.log(data);
+    localStorage.setItem("groupMembers", JSON.stringify(data))
+    window.location.href = "/joinquiz"
+});

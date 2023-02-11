@@ -33,9 +33,8 @@ let questionCounterFooter = document.getElementById("current-question")
 
 const questionTime = parseInt(localStorage.getItem("numOfSecs"))
 
-window.addEventListener('load', () => {
-    getQuestions()
-    fixQuizDetails()
+window.addEventListener('load', async() => {
+    await getQuizDetails()
 
 }) 
 
@@ -59,30 +58,20 @@ next_btn.onclick = ()=>{
     }
 }
 
-
-
-function getQuestions(){
+async function getQuizDetails(){
     var myHeaders = new Headers();
     let authToken = localStorage.getItem("x-auth-token")
 
     myHeaders.append("x-auth-token", authToken);
-    myHeaders.append("Content-Type", "application/json");
 
-    var raw = JSON.stringify({
-        "categoryId": parseInt(localStorage.getItem("category")),
-        "difficultyId": parseInt(localStorage.getItem("difficulty")),
-        "quizId": JSON.parse(localStorage.getItem('quizId')),
-        "timer": JSON.parse(localStorage.getItem('numOfSecs')) 
-    });
 
     var requestOptions = {
-        method: 'POST',
+        method: 'GET',
         headers: myHeaders,
-        body: raw,
         redirect: 'follow'
     };
 
-    fetch("/question", requestOptions)
+    fetch(`/quiz/${localStorage.getItem("quizId")}`, requestOptions)
     .then(async response => {
         if (!response.ok) {
             response = await response.json()
@@ -91,9 +80,46 @@ function getQuestions(){
         return response.json();
     })
     .then(result =>{
-        
-        waitingPage.classList.toggle("activeInfo")
-        generatingQuestionPage.classList.toggle("activeInfo")
+        console.log(result)
+        localStorage.setItem("questionId", JSON.stringify(result.data.questionsId))
+        localStorage.setItem("expectedParticipants", JSON.stringify(result.data.expectedParticipants))
+        localStorage.setItem("difficultyText", JSON.stringify(result.data.quizdifficulty))
+        localStorage.setItem("categoryText", JSON.stringify(result.data.quizcategory))
+        localStorage.setItem("numOfSecs", JSON.stringify(result.data.timer))
+
+        fixQuizDetails()
+
+ 
+    })
+    .catch(error => {
+        console.log(error)
+        alert(error)
+    });
+}
+
+
+async function getQuestions(){
+    var myHeaders = new Headers();
+    let authToken = localStorage.getItem("x-auth-token")
+
+    myHeaders.append("x-auth-token", authToken);
+
+
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+
+    fetch(`/question/${localStorage.getItem("questionId")}`, requestOptions)
+    .then(async response => {
+        if (!response.ok) {
+            response = await response.json()
+            throw new Error(response.message);
+        }
+        return response.json();
+    })
+    .then(result =>{
         localStorage.setItem("questions", JSON.stringify(result.data.questions) ) 
         questions = result.data.questions
 
@@ -103,11 +129,6 @@ function getQuestions(){
 
         showQuestions(currentQuestion)
  
-        let quizName = JSON.parse(localStorage["user-data"]).username + "-"+JSON.parse(localStorage["quizId"])
-        let userId = JSON.parse(localStorage["user-data"]).id
-        let username = JSON.parse(localStorage["user-data"]).username
-
-        socket.emit("createGroup", {name: quizName, id: userId, username: username})
     })
     .catch(error => {
         console.log(error)
@@ -116,12 +137,12 @@ function getQuestions(){
     
 }
 
-function fixQuizDetails(){
+async function fixQuizDetails(){
     difficultyField.textContent = localStorage.getItem("difficultyText")
     categiryField.textContent = localStorage.getItem("categoryText")
     timerField.textContent = localStorage.getItem("numOfSecs")
     participantField.textContent = localStorage.getItem("expectedParticipants")
-    quizIdField.textContent = JSON.parse(localStorage["user-data"]).username + "-"+JSON.parse(localStorage["quizId"])
+    quizIdField.textContent = localStorage.getItem("quizName")
 
     if(parseInt(localStorage.getItem("expectedParticipants")) === 1){
         document.getElementById("loading-spinner").classList.toggle("invisible")
@@ -138,6 +159,8 @@ function fixQuizDetails(){
     tr.appendChild(usernameTd);
 
     tbody.appendChild(tr);
+
+    getQuestions()
 
 
 }
@@ -343,6 +366,21 @@ function showResult(){
         alert(error)
     });
 }
+
+function appendUserToQuiz(){
+    let tr = document.createElement('tr');
+    
+    let idTd = document.createElement('td');
+    idTd.textContent = JSON.parse(localStorage["user-data"]).id;
+    tr.appendChild(idTd);
+
+    let usernameTd = document.createElement('td');
+    usernameTd.textContent = JSON.parse(localStorage["user-data"]).username;
+    tr.appendChild(usernameTd);
+
+    tbody.appendChild(tr);
+}
+
 
 quitQuizBtn.addEventListener("click", () => {
     window.location.href = "/home"
