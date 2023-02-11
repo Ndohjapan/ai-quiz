@@ -71,6 +71,11 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
         let randomNumber = generateRandomNumber(rows.length)
         try {
             rows[randomNumber].questions = JSON.parse(rows[randomNumber].questions)
+
+            await pool.query(`
+                update quiz set questions_id = $1, timer = $2 where id = $3
+            `, [rows[randomNumber].id, timer, quizId])
+
             
             res.send({success: true, data: rows[randomNumber]})
             

@@ -93,7 +93,6 @@ function getUsersQuiz(){
             h3Tag.textContent = firstname + " " + lastname;
             h5Tag.textContent = username;
             
-            console.log(resultData)
             
             for(i=0; i<resultData.length; i++){
                 let tr = document.createElement('tr');
@@ -264,15 +263,14 @@ joinQuizWithId.addEventListener("click", () => {
         .then(result =>{
             
             let quizName = quizIdInput.value
-            let userId = JSON.parse(localStorage["user-data"]).id
-            let username = JSON.parse(localStorage["user-data"]).username
-            socket.emit("joinGroup", {name: quizName, id: userId, username: username})
 
             let quizId = quizName.split("-").slice(-1)[0];
 
 
             localStorage.setItem("quizId", quizId)
             localStorage.setItem("quizName", quizName)
+
+            window.location.href = "/joinquiz"
             
         })
         .catch(error => {
@@ -410,7 +408,8 @@ function createQuiz(){
     })
     .then(result =>{
         
-        localStorage.setItem("quizId", result.data.id)
+    localStorage.setItem("categoryText", result.data.quizcategory)
+    localStorage.setItem("quizId", result.data.quizid)
         window.location.href = "/startQuiz"
     })
     .catch(error => {
@@ -433,5 +432,4 @@ socket.on("disconnect", function () {
 socket.on("groupMessage", function (data) {
     console.log(data);
     localStorage.setItem("groupMembers", JSON.stringify(data))
-    window.location.href = "/joinquiz"
 });

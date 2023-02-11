@@ -1,12 +1,14 @@
 const socket = io();
 
 const waitingPage = document.getElementById("waiting-box")
+const infoBox = document.querySelector(".info_box")
 const generatingQuestionPage = document.getElementById("generating-question")
 const difficultyField = document.getElementById("difficulty-field")
 const categiryField = document.getElementById("category-field")
 const quizIdField = document.getElementById("quizid-field")
 const timerField = document.getElementById("timer-field")
 const participantField = document.getElementById("participants-field")
+const currentConnectedField = document.getElementById("current-connected")
 const tbody = document.querySelector(".expected-participants tbody")
 
 const quitQuizBtn = document.getElementById("quit-quiz")
@@ -127,6 +129,8 @@ async function getQuestions(){
 
         timeText.textContent = "Time Left"
 
+        let data = JSON.parse(localStorage.getItem("groupMembers"))
+
         showQuestions(currentQuestion)
  
     })
@@ -148,17 +152,12 @@ async function fixQuizDetails(){
         document.getElementById("loading-spinner").classList.toggle("invisible")
     }
 
-    let tr = document.createElement('tr');
     
-    let idTd = document.createElement('td');
-    idTd.textContent = JSON.parse(localStorage["user-data"]).id;
-    tr.appendChild(idTd);
+    let userId = JSON.parse(localStorage["user-data"]).id
+    let username = JSON.parse(localStorage["user-data"]).username
+    let quizName = localStorage.getItem("quizName")
 
-    let usernameTd = document.createElement('td');
-    usernameTd.textContent = JSON.parse(localStorage["user-data"]).username;
-    tr.appendChild(usernameTd);
-
-    tbody.appendChild(tr);
+    socket.emit("joinGroup", {name: quizName, id: userId, username: username})
 
     getQuestions()
 
@@ -173,44 +172,10 @@ function closeModal(element){
 
 function startQuiz(){
 
-    var myHeaders = new Headers();
-    let authToken = localStorage.getItem("x-auth-token")
-    let quizId = localStorage.getItem("quizId")
-    myHeaders.append("x-auth-token", authToken);
-    myHeaders.append("Content-Type", "application/json");
+    quizBox.classList.toggle("activeQuiz")
 
-    var raw = JSON.stringify({
-        "started": true
-    });
-
-    var requestOptions = {
-        method: 'PUT',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-    };
-
-    fetch(`quiz/${quizId}`, requestOptions)
-    .then(async response => {
-        if (!response.ok) {
-            response = await response.json()
-            throw new Error(response.message);
-        }
-        return response.json();
-    })
-    .then(result =>{
-        
-        quizBox.classList.toggle("activeQuiz")
-
-        startTimer(questionTime)
-        startTimerLine(0) 
-        
-    })
-    .catch(error => {
-        console.log(error)
-        alert(error)
-    });
-
+    startTimer(questionTime)
+    startTimerLine(0)
 
 }
 
@@ -367,18 +332,27 @@ function showResult(){
     });
 }
 
-function appendUserToQuiz(){
-    let tr = document.createElement('tr');
+function appendUserToQuiz(data){
+
+    tbody.innerHTML = ""
+
+    for(i=0; i<data.length; i++){
+
+        let tr = document.createElement('tr');
+        
+        let idTd = document.createElement('td');
+        idTd.textContent = data[i].id;
+        tr.appendChild(idTd);
     
-    let idTd = document.createElement('td');
-    idTd.textContent = JSON.parse(localStorage["user-data"]).id;
-    tr.appendChild(idTd);
+        let usernameTd = document.createElement('td');
+        usernameTd.textContent = data[i].username
+        tr.appendChild(usernameTd);
+    
+        tbody.appendChild(tr);
+    }
 
-    let usernameTd = document.createElement('td');
-    usernameTd.textContent = JSON.parse(localStorage["user-data"]).username;
-    tr.appendChild(usernameTd);
+    currentConnectedField.textContent = data.length
 
-    tbody.appendChild(tr);
 }
 
 
@@ -400,5 +374,12 @@ socket.on("disconnect", function () {
 });
   
 socket.on("groupMessage", function (data) {
-    console.log(data);
+    localStorage.setItem("groupMembers", JSON.stringify(data))
+    appendUserToQuiz(data)
 });
+
+socket.on("startQuizBtn", (data) => {
+    console.log(data)
+    infoBox.classList.toggle("activeInfo")
+    startQuiz()
+})

@@ -7,6 +7,7 @@ const categiryField = document.getElementById("category-field")
 const quizIdField = document.getElementById("quizid-field")
 const timerField = document.getElementById("timer-field")
 const participantField = document.getElementById("participants-field")
+const currentConnectedField = document.getElementById("current-connected")
 const tbody = document.querySelector(".expected-participants tbody")
 
 const quitQuizBtn = document.getElementById("quit-quiz")
@@ -176,6 +177,8 @@ function startQuiz(){
         return response.json();
     })
     .then(result =>{
+        let quizName = JSON.parse(localStorage["user-data"]).username + "-"+JSON.parse(localStorage["quizId"])
+        socket.emit("startQuiz", quizName)
         
         quizBox.classList.toggle("activeQuiz")
 
@@ -349,6 +352,30 @@ quitQuizBtn.addEventListener("click", () => {
 })
 
 
+function appendUserToQuiz(data){
+
+    tbody.innerHTML = ""
+
+    for(i=0; i<data.length; i++){
+
+        let tr = document.createElement('tr');
+        
+        let idTd = document.createElement('td');
+        idTd.textContent = data[i].id;
+        tr.appendChild(idTd);
+    
+        let usernameTd = document.createElement('td');
+        usernameTd.textContent = data[i].username
+        tr.appendChild(usernameTd);
+    
+        tbody.appendChild(tr);
+    }
+
+    currentConnectedField.textContent = data.length
+
+}
+
+
 socket.on("connect", function () {
     console.log("Connected to server!");
 });
@@ -363,4 +390,5 @@ socket.on("disconnect", function () {
   
 socket.on("groupMessage", function (data) {
     console.log(data);
+    appendUserToQuiz(data)
 });

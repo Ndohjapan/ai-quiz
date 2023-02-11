@@ -22,7 +22,14 @@ exports.createQuiz = catchAsync(async(req, res, next) => {
     `, [userId, category, difficulty, quizType, expectedParticipants]
     )
 
-    res.send({success: true, data: toCamelCase(rows)[0]})
+    let result = await pool.query(`
+        select *, quiz.id as quizId, quiz_category.name as quizCategory, quiz_difficulty.name as quizDifficulty from quiz
+        join quiz_category on quiz_category.id = quiz.category
+        join quiz_difficulty on quiz_difficulty.id = quiz.difficulty
+        where quiz.id = $1
+    `, [rows[0].id])
+
+    res.send({success: true, data: toCamelCase(result.rows)[0]})
 })
 
 exports.getByUserId = catchAsync(async(req, res, next) => {
@@ -121,6 +128,8 @@ exports.joinQuiz = catchAsync(async(req, res, next) => {
     if(!rows.length){
         return next(new AppError("Quiz has already started or quiz does not exist", 400))
     }
+
+    console.log(rows[0].creator, req.user.id)
 
     if(rows[0].creator === req.user.id){
         return next(new AppError("You Cannot Join Your Own Quiz"))

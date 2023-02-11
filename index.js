@@ -32,29 +32,39 @@ const io = socketio(server, {
     }
 })
 
-io.on('connection', (socket) => {
+io.on('connection', async(socket) => {
     console.log("Someone connected: ", socket.id)
-    socket.on('createGroup', (group) => {
-        console.log("I want to create a group", group)
+    socket.on('createGroup', async(group) => {
         socket.join(group.name);
 
         groupInfo[group.name] = [{id: group.id, username: group.username}]
 
-        console.log("This is the current state of the group info", groupInfo)
-        
+        const detach = await io.in(group.name).fetchSockets();
+
     });
     
-    socket.on("joinGroup", (group) => {
-        console.log("I want to join the group")
-        console.log(group)
+    socket.on("joinGroup", async(group) => {
         socket.join(group.name)
-
-        console.log("This is the current state of the group info", groupInfo)
         
-        groupInfo[group.name].push({id: group.id, username: group.username})
+        try{
 
-        io.to(group.name).emit('groupMessage', groupInfo[group.name]);
+            groupInfo[group.name].push({id: group.id, username: group.username})
 
+            io.to(group.name).emit('groupMessage', groupInfo[group.name]);
+            
+            console.log(io.in(group.name).allSockets())
+            
+        }
+        catch(err){
+            console.log(err)
+        }
+
+
+    })
+
+    socket.on("startQuiz", (groupName) => {
+        console.log("I am here")
+        io.to(groupName).emit('startQuizBtn');
     })
 });
 
