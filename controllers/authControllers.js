@@ -36,7 +36,7 @@ exports.signup = catchAsync(async(req, res, next) => {
             values($1, $2, $3, $4, hash_password($5), $6, $7) returning *
         `, [firstname, lastname, username, email, password, otp, otpExpiresIn]
         )
-        // await sendMail(email, otp);
+        await sendMail(email, otp);
         
         if(process.env.NODE_ENV === "development"){
             return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
