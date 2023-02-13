@@ -139,7 +139,7 @@ exports.joinQuiz = catchAsync(async(req, res, next) => {
         await pool.query(`
             UPDATE quiz set connected = connected+1 where id = $1
         `, [rows[0].id])
-        return res.send({success: true, message: "quiz updated"})
+        return res.send({success: true, message: "quiz updated", data: toCamelCase(rows)[0]})
     }else{
         return next(new AppError("Quiz is full", 400))
     }

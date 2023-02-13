@@ -269,6 +269,7 @@ joinQuizWithId.addEventListener("click", () => {
 
             localStorage.setItem("quizId", quizId)
             localStorage.setItem("quizName", quizName)
+            localStorage.setItem("numOfSecs", result.data.timer)
 
             window.location.href = "/joinquiz"
             
