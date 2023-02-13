@@ -298,7 +298,7 @@ function showResult(){
     quizBox.classList.toggle("activeQuiz")
     resultBox.classList.toggle("activeResult"); //hide quiz box
     const scoreText = resultBox.querySelector(".score_text");
-    let numberOfQuestions = questions.length
+    let numberOfQuestions = questions.length * 10
     if (userScore > 30){ // if user scored more than 3
         //creating a new span tag and passing the user score number and total question number
         let scoreTag = '<span>and congrats! 🎉, You got <p>'+ userScore +'</p> out of <p>'+ numberOfQuestions +'</p></span>';
