@@ -20,6 +20,7 @@ git clone https://github.com/Ndohjapan/ai-quiz.git
 ~~~
 
 ### Setup the environment variables
+Create an environment file called `.env`
 ~~~
 PORT=3030
 HOST="localhost"
