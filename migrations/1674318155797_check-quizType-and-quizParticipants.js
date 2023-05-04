@@ -4,12 +4,16 @@ exports.shorthands = undefined;
 
 exports.up = pgm => {
     pgm.sql(`
-        ALTER TABLE quiz ADD CONSTRAINT check_expected_participants CHECK (quiz_type != 'single' OR expected_participants = 1);
+        CREATE TRIGGER check_quiz_type_expected_participants
+        BEFORE INSERT OR UPDATE ON quiz
+        FOR EACH ROW
+        EXECUTE FUNCTION check_quiz_type_expected_participants();
+    
     `)
 };
 
 exports.down = pgm => {
     pgm.sql(`
-        ALTER TABLE quiz DROP CONSTRAINT check_expected_participants;
+        DROP TRIGGER check_quiz_type_expected_participants ON quiz;
     `)
 };
