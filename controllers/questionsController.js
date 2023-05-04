@@ -41,7 +41,6 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
             frequency_penalty: 0,
             presence_penalty: 0,
         });
-        // console.log(response)
         let questions = response.data.choices[0].text
 
         
@@ -80,6 +79,7 @@ exports.getQuestions = catchAsync(async(req, res, next) => {
             res.send({success: true, data: rows[randomNumber]})
             
         } catch (error) {
+            rows[0].questions = rows[0].questions.replace(/^[^\[\]]+|[^\[\]]+$/g, "");
             rows[0].questions = JSON.parse(rows[0].questions)
             res.send({success: true, data: rows[0]})
         }
