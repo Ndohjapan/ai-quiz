@@ -1,149 +1,156 @@
-const AppError = require("../utils/appError")
-const catchAsync = require("../utils/catchAsync")
-const toCamelCase = require("../utils/toCamelCase")
-const dates = require("../utils/dates")
-const {sendMail} = require("../utils/sendMail")
-const generateOtp = require("../utils/generateOtp")
-const pool = require("../utils/db")
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
+const toCamelCase = require("../utils/toCamelCase");
+const dates = require("../utils/dates");
+const { sendMail } = require("../utils/sendMail");
+const generateOtp = require("../utils/generateOtp");
+const pool = require("../utils/db");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
-
-async function signJWT (id, verified){
-    return jwt.sign(
-        { id, verified, exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) },
-        process.env.JWT_PRIVATE_KEY
-    );
+async function signJWT(id, verified) {
+  return jwt.sign(
+    { id, verified, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 },
+    process.env.JWT_PRIVATE_KEY
+  );
 }
 
+exports.signup = catchAsync(async (req, res, next) => {
+  const { firstname, lastname, username, email, password } = req.body;
 
-exports.signup = catchAsync(async(req, res, next) => {
-    const {firstname, lastname, username, email, password} = req.body
+  const otp = generateOtp();
+  const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT);
 
-    const otp = generateOtp();
-    const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT); 
+  const salt = await bcrypt.genSalt(10);
 
-    const {rows} = await pool.query(`
-        SELECT hash_password($1);
-    `, [password])
+  const hashedPassword = await bcrypt.hash(password, salt);
 
-    const hashedPassword = rows[0].hash_password
-
-    try{
-        
-        let {rows} = await pool.query(`
+  try {
+    let { rows } = await pool.query(
+      `
             insert into users (firstname, lastname, username, email, password, otp, otp_expires_in)
-            values($1, $2, $3, $4, hash_password($5), $6, $7) returning *
-        `, [firstname, lastname, username, email, password, otp, otpExpiresIn]
-        )
-        await sendMail(email, otp);
-        
-        if(process.env.NODE_ENV === "development"){
-            return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
-        }
-    
-        return res.send({success: true, message: "OTP Sent to your email"})
+            values($1, $2, $3, $4, $5, $6, $7) returning *
+        `,
+      [firstname, lastname, username, email, hashedPassword, otp, otpExpiresIn]
+    );
+    await sendMail(email, otp);
+
+    if (process.env.NODE_ENV === "development") {
+      return res.send({
+        success: true,
+        message: "OTP Sent to your email",
+        data: toCamelCase(rows)[0],
+      });
     }
-    catch(err){
-        return next(new AppError(err.message, 400))
-    }
 
+    return res.send({ success: true, message: "OTP Sent to your email" });
+  } catch (err) {
+    return next(new AppError(err.message, 400));
+  }
+});
 
-})
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+  const { otp, email } = req.body;
 
-
-exports.verifyOTP = catchAsync(async(req, res, next) => {
-    const { otp, email } = req.body;
-
-    const {rows} = await pool.query(`
+  const { rows } = await pool.query(
+    `
         select * from users where email=$1 and otp=$2
-    `, [email, otp])
+    `,
+    [email, otp]
+  );
 
-    console.log(rows)
+  console.log(rows);
 
-    if (!rows.length) return next(new AppError("Invalid OTP", 400));
+  if (!rows.length) return next(new AppError("Invalid OTP", 400));
 
-    
-    const currentDate = Date.now();
-    const elapsed = dates.minuteDifference(currentDate, rows[0].otp_expires_in);
-    
-    if (elapsed > process.env.OTP_MINUTES_LIMIT){
-        return next(new AppError("OTP expired", 400));
-    }else{
-        
-        let {rows} = await pool.query(`
+  const currentDate = Date.now();
+  const elapsed = dates.minuteDifference(currentDate, rows[0].otp_expires_in);
+
+  if (elapsed > process.env.OTP_MINUTES_LIMIT) {
+    return next(new AppError("OTP expired", 400));
+  } else {
+    let { rows } = await pool.query(
+      `
             update users set VERIFIED = true, otp='' where email = $1 returning *
-        `, [email])
-        
-        return res.send({success: true, message: "OTP Verified", data: toCamelCase(rows)[0]})
+        `,
+      [email]
+    );
 
-    }
-})
+    return res.send({
+      success: true,
+      message: "OTP Verified",
+      data: toCamelCase(rows)[0],
+    });
+  }
+});
 
-exports.resendOTP = catchAsync(async(req, res, next) => {
-    let {email} = req.body
+exports.resendOTP = catchAsync(async (req, res, next) => {
+  let { email } = req.body;
 
-    const otp = generateOtp();
-    const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT); 
+  const otp = generateOtp();
+  const otpExpiresIn = dates.getFutureMinutes(process.env.OTP_MINUTES_LIMIT);
 
-   let {rows} = await pool.query(`
+  let { rows } = await pool.query(
+    `
         update users set otp = $1, otp_expires_in=$2 where email = $3 returning *
-    `, [otp, otpExpiresIn, email])
-    // await sendMail(email, otp);
+    `,
+    [otp, otpExpiresIn, email]
+  );
+  // await sendMail(email, otp);
 
-    if(process.env.NODE_ENV === "development"){
-        return res.send({success: true, message: "OTP Sent to your email", data: toCamelCase(rows)[0]})
-    }
+  if (process.env.NODE_ENV === "development") {
+    return res.send({
+      success: true,
+      message: "OTP Sent to your email",
+      data: toCamelCase(rows)[0],
+    });
+  }
 
-    return res.status(200).json({ success: true, message: "OTP re-sent" });
-})
+  return res.status(200).json({ success: true, message: "OTP re-sent" });
+});
 
 exports.login = catchAsync(async (req, res, next) => {
-    const { email, password } = req.body;
-  
-    if (!email || !password)
-        return next(new AppError("Provide an email and password", 400));
-  
-    let user = await pool.query(`
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return next(new AppError("Provide an email and password", 400));
+
+  let user = await pool.query(
+    `
         select * from users where email = $1
-    `, [email])
+    `,
+    [email]
+  );
 
+  if (!user.rows.length) {
+    return next(new AppError("Invalid Login Detail", 404));
+  } else {
 
-    if (!user.rows.length){
-      return next(new AppError("Invalid Login Detail", 404));
+    const correctPassword = bcrypt.compare(password, user.rows[0].password);
+
+    if (!correctPassword) {
+      return next(new AppError("Invalid Login Detail", 400));
+    } else {
+      const token = await signJWT(user.rows[0].id, user.rows[0].verified);
+      res
+        .status(200)
+        .json({ success: true, token, data: toCamelCase(user.rows)[0] });
     }
-    else{
+  }
+});
 
-        const {rows} = await pool.query(`
-            SELECT check_password($1, $2)
-        `, [password, email])
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  let { email, newPassword } = req.body;
 
-        const correctPassword = rows[0].check_password
-        if (!correctPassword){
-    
-            return next(new AppError("Invalid Login Detail", 400));
-        }else{
-            const token = await signJWT(user.rows[0].id, rows[0].verified);
-            res.status(200).json({ success: true, token, data: toCamelCase(user.rows)[0] });
-        }
-  
-    } 
-  
-  })
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-exports.resetPassword = catchAsync(async(req, res, next) => {
-    let {email, newPassword} = req.body
-  
-    let {rows} = await pool.query(`
-        SELECT hash_password($1);
-    `, [newPassword])
-    
-    const hashedPassword = rows[0].hash_password
-
-    await pool.query(`
+  await pool.query(
+    `
         update users set VERIFIED = true, password=$1 where email = $2 returning *
-    `, [hashedPassword, email])
-  
-    res.status(200).send({status: true, message: "Password Set Successfully"})
+    `,
+    [hashedPassword, email]
+  );
 
-})
+  res.status(200).send({ status: true, message: "Password Set Successfully" });
+});
