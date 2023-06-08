@@ -32,6 +32,8 @@ const io = socketio(server, {
     }
 })
 
+
+
 io.on('connection', async(socket) => {
     console.log("Someone connected: ", socket.id)
     socket.on('createGroup', async(group) => {
